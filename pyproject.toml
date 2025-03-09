@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "toolbox"
+description = "A toolbox for automation tasks"
+authors = [
+    { name = "chatgpt" },
+    { name = "Maximilian Clemens", email = "clemens.maximilian@mailbox.org" }
+]
+readme = "README.md"
+license = { text = "MIT" }
+dynamic = ["version", "dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/Suedwestfalen-IT/toolbox"
+
+[project.scripts]
+toolbox = "toolbox.__main__:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "toolbox.release.__version__"}
+dependencies = {file = ["requirements.txt"]}

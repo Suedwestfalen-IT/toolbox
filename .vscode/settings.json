@@ -1,0 +1,14 @@
+{
+    "files.trimTrailingWhitespace": true, // entferne unnötige Leerzeichen
+    "files.insertFinalNewline": true, // Newline am Enden
+    "files.trimFinalNewlines": true, // entferne unnötige newlines am ende
+    "files.autoSave": "onFocusChange", // autosave beim focus wechsel
+
+    "python.analysis.autoImportCompletions": false, // Kein Autoimport da häufig falsch
+    "python.analysis.autoFormatStrings": true, // automatisches f bei formatieren string
+    "editor.defaultFormatter": "ms-python.black-formatter",
+
+    "black-formatter.args": [
+        "--line-length=120"
+    ]
+}
