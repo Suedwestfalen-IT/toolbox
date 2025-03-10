@@ -1,5 +1,6 @@
 import argparse
 import importlib
+import importlib.util
 import logging
 import os
 # import pkgutil
@@ -60,6 +61,13 @@ class Toolbox:
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
 
+        # Load Search Paths
+        search_paths = self.config.get("toolbox", {}).get("modul_search_paths", [])
+        search_paths.append(os.getcwd())
+        for base_path in search_paths:
+            self.logger.debug(f"add search path: {base_path}")
+            sys.path.insert(0, base_path)
+
         self.logger.debug("Toolbox initialized")
 
     def load_module(self, module_name: str) -> Type[BaseToolboxModule]|None:
@@ -72,6 +80,11 @@ class Toolbox:
         Returns:
             Type[BaseToolboxModule]: The class object of the loaded module.
         """
+
+        if not module_name.startswith('toolbox.builtin'):
+            parts = module_name.split(".")
+            package_name = parts[0]           # z. B. "sit"
+            importlib.import_module(package_name)
 
         try:
             module = importlib.import_module(module_name)
