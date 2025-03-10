@@ -48,7 +48,7 @@ class BaseToolboxModule(abc.ABC):
     """
     HELP: str = "You should implement this in your subclass"  # Description for parser
 
-    class Arguments(BaseModel):
+    class Arguments(ConfigModel):
         """
         Pydantic model for CLI arguments.
         """
@@ -102,11 +102,19 @@ class BaseToolboxModule(abc.ABC):
 
     def __init__(
         self,
-        args: Type[BaseModel] | None = None,
+        args: dict | ConfigModel | None = None,
         config: dict[str, Any] | None = None,
         logger: Logger | None = None,
     ):
-        self.args: Type[BaseModel] = args
+        if args is None:
+            self.args = self.__class__.Arguments()  # Default-Werte verwenden
+        elif isinstance(args, dict):
+            self.args = self.__class__.Arguments(**args)  # aus einem dict parsen
+        elif isinstance(args, self.__class__.Arguments):
+            self.args = args
+        else:
+            raise ValueError("Invalid Type for args")
+
         self.config: dict[str, Any] = config or {}
         self.logger: Logger = logger or logging.getLogger(self.__class__.__name__)
 

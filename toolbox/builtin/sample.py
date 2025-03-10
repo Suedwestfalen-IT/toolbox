@@ -1,5 +1,5 @@
 from typing import Any, Optional
-from toolbox.base import BaseToolboxModule, ConfigModel
+from toolbox.base import BaseToolboxModule
 
 
 class ToolboxModule(BaseToolboxModule):
@@ -21,9 +21,9 @@ class ToolboxModule(BaseToolboxModule):
 
     HELP: str = "This is a sample module"
 
-    class Arguments(ConfigModel):
-        test: str = ConfigModel.add_argument(help="This is a positional test argument")
-        other: Optional[str] = ConfigModel.add_argument('-a','--other', help="This is other argument")
+    class Arguments(BaseToolboxModule.Arguments):
+        test: str = BaseToolboxModule.Arguments.add_argument(help="This is a positional test argument")
+        other: Optional[str] = BaseToolboxModule.Arguments.add_argument('-a','--other', help="This is other argument")
 
     def run(self, run_data: dict[str, Any] | None = None) -> dict[str, Any]:
         return {
