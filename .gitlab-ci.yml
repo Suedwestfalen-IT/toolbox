@@ -1,0 +1,13 @@
+image: ${REGISTRY:-}python:3.11-alpine
+
+stages:
+  - lint
+
+pylint:
+  tags:
+    - python-datacenter
+  stage: lint
+  script:
+    - python -m pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pylint toolbox
