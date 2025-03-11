@@ -6,14 +6,11 @@ import os
 # import pkgutil
 import sys
 import inspect
-from typing import Type
+from typing import Type, Optional
 
 import yaml
 
 from toolbox.base import BaseToolboxModule
-
-
-
 
 class Toolbox:
 
@@ -99,7 +96,7 @@ class Toolbox:
         self.logger.error(f"No ToolboxModule class found in module {module_name}")
         return None
 
-    def run(self, command: str, arguments: list | dict, input: str | None = None, output: str | None = None): # pylint: disable=redefined-builtin
+    def run(self, command: str, arguments: list | dict, input: Optional[str] = None, output: Optional[str] = None): # pylint: disable=redefined-builtin
         """
         Executes a command with the specified arguments.
 

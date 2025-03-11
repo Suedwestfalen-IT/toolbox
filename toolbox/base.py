@@ -91,6 +91,9 @@ class BaseToolboxModule(abc.ABC):
                 if positional:
                     if "required" in args_dict:
                         del args_dict["required"]
+                else:
+                    if not args_dict['dest']:
+                        args_dict['dest'] = field_name
 
                 # Delete all None values
                 args_dict = {k: v for k, v in args_dict.items() if v is not None}
@@ -103,8 +106,8 @@ class BaseToolboxModule(abc.ABC):
     def __init__(
         self,
         args: dict | ConfigModel | None = None,
-        config: dict[str, Any] | None = None,
-        logger: Logger | None = None,
+        config: Optional[dict[str, Any]] = None,
+        logger: Optional[Logger] = None,
     ):
         if args is None:
             self.args = self.__class__.Arguments()  # Default-Werte verwenden
@@ -121,7 +124,7 @@ class BaseToolboxModule(abc.ABC):
         self.logger.debug(f"Initializing {self.__class__.__name__} module")
 
     @abc.abstractmethod
-    def run(self, run_data: dict[str, Any] | None = None) -> dict[str, Any]:
+    def run(self, run_data: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         """
         Execute the module's main functionality.
         Must be implemented in the subclass.

@@ -15,7 +15,7 @@ class ToolboxModule(BaseToolboxModule):
             other (str): An optional argument with short and long flags.
 
     Methods:
-        run(run_data: dict[str, Any] | None = None) -> dict[str, Any]:
+        run(run_data: Optional[dict[str, Any]] = None) -> dict[str, Any]:
             Executes the module with the provided run data and returns a dictionary containing the test argument.
     """
 
@@ -25,7 +25,7 @@ class ToolboxModule(BaseToolboxModule):
         test: str = BaseToolboxModule.Arguments.add_argument(help="This is a positional test argument")
         other: Optional[str] = BaseToolboxModule.Arguments.add_argument('-a','--other', help="This is other argument")
 
-    def run(self, run_data: dict[str, Any] | None = None) -> dict[str, Any]:
+    def run(self, run_data: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         return {
             "test": self.args.test,
             "other": self.args.other
