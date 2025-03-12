@@ -6,7 +6,7 @@ import os
 # import pkgutil
 import sys
 import inspect
-from typing import Type, Optional
+from typing import Type, Optional, Union
 
 import yaml
 
@@ -19,7 +19,7 @@ class Toolbox:
     export, import, and analyze your data for seamless, ad-hoc solutions.
     """
 
-    def __init__(self, config:str|None|dict, verbose=False):
+    def __init__(self, config:Optional[Union[str, dict]] = None, verbose=False):
         """
         Initializes the Toolbox instance.
 
