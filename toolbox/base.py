@@ -48,6 +48,17 @@ class BaseToolboxModule(abc.ABC):
     """
     HELP: str = "You should implement this in your subclass"  # Description for parser
 
+    OUPUT_HTML_JINJA2: Optional[str] = None
+
+    @abc.abstractmethod
+    def flat_output(self, output_data: dict[str, Any]) -> str:
+        """ create a flat output for csv or a generic HTML Table"""
+
+        return """
+        Flat Output for CSV or generic HTML
+        Must be implemented in the subclass.
+        """
+
     class Arguments(ConfigModel):
         """
         Pydantic model for CLI arguments.
