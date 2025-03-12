@@ -154,7 +154,7 @@ class Toolbox:
                 with open(output, 'w', encoding="utf-8") as file:
                     file.write(output_yaml)
 
-        return output_yaml
+        return output_data
 
 
 
