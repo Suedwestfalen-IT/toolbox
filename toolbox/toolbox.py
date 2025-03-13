@@ -58,12 +58,12 @@ class Toolbox:
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
 
-        # Load Search Paths
-        search_paths = self.config.get("toolbox", {}).get("modul_search_paths", [])
-        search_paths.append(os.getcwd())
-        for base_path in search_paths:
-            self.logger.debug(f"add search path: {base_path}")
-            sys.path.insert(0, base_path)
+        # # Load Search Paths
+        # search_paths = self.config.get("toolbox", {}).get("modul_search_paths", [])
+        # search_paths.append(os.getcwd())
+        # for base_path in search_paths:
+        #     self.logger.debug(f"add search path: {base_path}")
+        #     sys.path.insert(0, base_path)
 
         self.logger.debug("Toolbox initialized")
 
@@ -78,13 +78,15 @@ class Toolbox:
             Type[BaseToolboxModule]: The class object of the loaded module.
         """
 
-        if not module_name.startswith('toolbox.builtin'):
-            parts = module_name.split(".")
-            package_name = parts[0]           # z. B. "sit"
-            importlib.import_module(package_name)
+        package_name, module = module_name.split(".", 1)
+        prefix = "toolbox"
+
+        if package_name != "builtin":
+            prefix = "toolbox_modules"
+            importlib.import_module(f"{prefix}.{package_name}")
 
         try:
-            module = importlib.import_module(module_name)
+            module = importlib.import_module(f"{prefix}.{package_name}.{module}")
         except ImportError as e:
             self.logger.error(f"Error loading module {module_name}: {e}")
             return None
@@ -95,6 +97,29 @@ class Toolbox:
 
         self.logger.error(f"No ToolboxModule class found in module {module_name}")
         return None
+
+    def init_module(self, module_class: Type[BaseToolboxModule], arguments: list | dict) -> BaseToolboxModule:
+        """ Initalizes a Module with specified args, for reusability of the toolbox instance """
+
+        command = module_class.__module__.removeprefix("toolbox.").removeprefix("toolbox_modules.")
+        if isinstance(arguments, list):
+            argparser = argparse.ArgumentParser(prog=command, description=module_class.HELP)
+            module_class.update_parser(argparser)
+            args = argparser.parse_args(arguments)
+            parsed_args = module_class.Arguments.parse_obj(vars(args))
+
+        elif isinstance(arguments, dict):
+            parsed_args = module_class.Arguments.parse_obj(arguments)
+        else:
+            raise ValueError("Invalid arguments type. Must be list or dict.")
+
+        self.logger.debug(f"Arguments: {parsed_args}")
+
+        # Initialize module
+        module = module_class(args=parsed_args, config=self.config, logger=self.logger.getChild(command))
+
+        return module
+
 
     def run(self, command: str, arguments: list | dict, input: Optional[str] = None, output: Optional[str] = None): # pylint: disable=redefined-builtin
         """
@@ -115,21 +140,7 @@ class Toolbox:
         if module_class is None:
             return {} # Todo: raise exception or something
 
-        if isinstance(arguments, list):
-            argparser = argparse.ArgumentParser(prog=command, description=module_class.HELP)
-            module_class.update_parser(argparser)
-            args = argparser.parse_args(arguments)
-            parsed_args = module_class.Arguments.parse_obj(vars(args))
-
-        elif isinstance(arguments, dict):
-            parsed_args = module_class.Arguments.parse_obj(arguments)
-        else:
-            raise ValueError("Invalid arguments type. Must be list or dict.")
-
-        self.logger.debug(f"Arguments: {parsed_args}")
-
-        # Initialize module
-        module = module_class(args=parsed_args, config=self.config, logger=self.logger.getChild(command.removeprefix("toolbox.")))
+        module = self.init_module(module_class, arguments)
 
         # Get Input
         if input is not None:

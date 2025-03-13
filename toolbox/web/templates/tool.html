@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ toolgroup_config.title }} - {{ tool_config.title }}{% endblock %}
+
+{% block content %}
+<h2>{{ toolgroup_config.title }} - {{ tool_config.title }}</h2>
+<p>{{ toolbox_module.HELP }}</p>
+
+<div class="accordion" id="accordionExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            Modul-Parameter
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+
+            <form method="get" action="/{{path[0]}}/{{path[1]}}/run">
+                {% for field, field_info in toolbox_arguments.items() %}
+                  <div class="mb-3">
+                    <label for="{{ field }}" class="form-label">
+                      {{ field|capitalize }}
+                      {% if field_info.description %}<br><small class="text-muted">{{ field_info.description }}</small>{% endif %}
+                    </label>
+                    {% set field_type = field_info.annotation|string %}
+                    {% if 'bool' in field_type %}
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="{{ field }}" name="{{ field }}"
+                        {% if params is defined and field in params %}
+                            checked
+                        {% elif field_info.default %}
+                            checked
+                        {% endif %}
+                        >
+                        <label class="form-check-label" for="{{ field }}">
+                          {{ field|capitalize }}
+                        </label>
+                      </div>
+                    {% elif 'str' in field_type %}
+                      <input type="text" class="form-control" id="{{ field }}" name="{{ field }}"
+                        value="{{ params[field] if params is defined and field in params else (field_info.default if field_info.default is not none else '') }}">
+                    {% else %}
+                      <!-- Falls ein anderer Typ vorhanden ist, als Fallback ein Textfeld -->
+                      <input type="text" class="form-control" id="{{ field }}" name="{{ field }}"
+                        value="{{ params[field] if params is defined and field in params else (field_info.default if field_info.default is not none else '') }}">
+                    {% endif %}
+                  </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">Absenden</button>
+              </form>
+
+          </div>
+        </div>
+      </div>
+
+</div>
+
+{{ output_str|safe }}
+
+{% endblock %}

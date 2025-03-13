@@ -22,3 +22,9 @@ toolbox = "toolbox.__main__:main"
 [tool.setuptools.dynamic]
 version = {attr = "toolbox.release.__version__"}
 dependencies = {file = ["requirements.txt"]}
+
+[project.optional-dependencies]
+web = [
+  "fastapi[standard]",
+  "bootstrap @ git+https://github.com/MaximilianClemens/bootstrap.git"
+]

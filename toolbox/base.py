@@ -48,10 +48,9 @@ class BaseToolboxModule(abc.ABC):
     """
     HELP: str = "You should implement this in your subclass"  # Description for parser
 
-    OUPUT_HTML_JINJA2: Optional[str] = None
+    OUTPUT_HTML_JINJA2: Optional[str] = None
 
-    @abc.abstractmethod
-    def flat_output(self, output_data: dict[str, Any]) -> str:
+    def flat_output(self, output_data: dict[str, Any]) -> str: # pylint: disable = unused-argument
         """ create a flat output for csv or a generic HTML Table"""
 
         return """

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Toolbox{% endblock %}</title>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/sidebars.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+  <main class="d-flex flex-nowrap">
+    <div class="flex-shrink-0 p-3 border-end" style="width: 280px;">
+      <a href="/" class="d-flex align-items-center pb-3 mb-3 link-body-emphasis text-decoration-none border-bottom">
+
+        <img class="me-2" src="/static/img/logo.png"  width="64" height="52" />
+        <span class="fs-2 fw-normal">Toolbox</span>
+      </a>
+      <ul class="list-unstyled ps-0">
+        {% for group, group_data in web_config.groups.items() %}
+        <li class="mb-1">
+          <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-expanded="true">{{ group_data.title }}</button>
+          <div class="collapse show" id="home-collapse" style="">
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+              {% for tool, tool_data in group_data.tools.items() %}
+              <li><a href="/{{ group }}/{{ tool }}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">{{ tool_data.title }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+        </li>
+        {% endfor %}
+
+        <!--<li class="border-top my-3"></li>
+        <li class="mb-1">
+          <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#account-collapse" aria-expanded="false">
+            Account
+          </button>
+          <div class="collapse" id="account-collapse" style="">
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+              <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">New...</a></li>
+              <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Profile</a></li>
+              <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Settings</a></li>
+              <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Sign out</a></li>
+            </ul>
+          </div>
+        </li>-->
+      </ul>
+    </div>
+    <div class="container-fluid mt-4 scrollarea">
+        {% block content %}{% endblock %}
+    </div>
+  </main>
+
+
+
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
