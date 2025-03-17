@@ -26,5 +26,6 @@ dependencies = {file = ["requirements.txt"]}
 [project.optional-dependencies]
 web = [
   "fastapi[standard]",
+  "openpyxl",
   "bootstrap @ git+https://github.com/MaximilianClemens/bootstrap.git"
 ]

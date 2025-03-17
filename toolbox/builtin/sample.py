@@ -22,11 +22,8 @@ class ToolboxModule(BaseToolboxModule):
     HELP: str = "This is a sample module"
     OUTPUT_HTML_JINJA2: Optional[str] = None
 
-    def flat_output(self, output_data: dict[str, Any]) -> str:
-        return """
-        Flat Output for CSV or generic HTML
-        Must be implemented in the subclass.
-        """
+    def flat_output(self, output_data: dict[str, Any]) -> list[dict[str, str]]:
+        return []
 
     class Arguments(BaseToolboxModule.Arguments):
         test: str = BaseToolboxModule.Arguments.add_argument(help="This is a positional test argument")

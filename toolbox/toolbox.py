@@ -59,7 +59,9 @@ class Toolbox:
         self.logger.addHandler(handler)
 
         # # Load Search Paths
-        search_paths = self.config.get("toolbox", {}).get("modul_search_paths", [])
+        search_paths = self.config.get("toolbox", {}).get("module_search_paths", [])
+        if not search_paths:
+            search_paths = self.config.get("toolbox", {}).get("modul_search_paths", [])
         # search_paths.append(os.getcwd())
         for base_path in search_paths:
             self.logger.debug(f"add search path: {base_path}")

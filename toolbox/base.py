@@ -1,8 +1,9 @@
 import argparse
 import logging
 from logging import Logger
-from typing import Any, Optional, Type
+from typing import Any, List, Optional, Type, Dict
 import abc
+
 
 from pydantic import BaseModel, Field
 
@@ -50,13 +51,12 @@ class BaseToolboxModule(abc.ABC):
 
     OUTPUT_HTML_JINJA2: Optional[str] = None
 
-    def flat_output(self, output_data: dict[str, Any]) -> str: # pylint: disable = unused-argument
-        """ create a flat output for csv or a generic HTML Table"""
+    @staticmethod
+    def flat_output(output_data: Dict[str, Any]) -> List[Dict[str, str]]:
+        """ Flat the output of the module """
+        print('e1')
+        raise NotImplementedError("flat_output not implemented!")
 
-        return """
-        Flat Output for CSV or generic HTML
-        Must be implemented in the subclass.
-        """
 
     class Arguments(ConfigModel):
         """
