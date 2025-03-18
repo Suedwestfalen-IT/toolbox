@@ -52,9 +52,9 @@ class BaseToolboxModule(abc.ABC):
     OUTPUT_HTML_JINJA2: Optional[str] = None
 
     @staticmethod
-    def flat_output(output_data: Dict[str, Any]) -> List[Dict[str, str]]:
+    def flat_output(output_data: Dict[str, Any]) -> List[Dict[str, str]]: # pylint: disable=unused-argument
         """ Flat the output of the module """
-        print('e1')
+
         raise NotImplementedError("flat_output not implemented!")
 
 

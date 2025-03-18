@@ -67,7 +67,7 @@ class Toolbox:
             self.logger.debug(f"add search path: {base_path}")
             sys.path.insert(0, base_path)
 
-        self.logger.debug("Toolbox initialized")
+        self.logger.info("Toolbox initialized")
 
     def load_module(self, module_name: str) -> Type[BaseToolboxModule]|None:
         """
@@ -88,7 +88,9 @@ class Toolbox:
             importlib.import_module(f"{prefix}.{package_name}")
 
         try:
-            module = importlib.import_module(f"{prefix}.{package_name}.{module}")
+            full_module_name = f"{prefix}.{package_name}.{module}"
+            self.logger.debug(f"loading {full_module_name}")
+            module = importlib.import_module(full_module_name)
         except ImportError as e:
             self.logger.error(f"Error loading module {module_name}: {e}")
             return None

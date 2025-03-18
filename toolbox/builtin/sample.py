@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 from toolbox.base import BaseToolboxModule
 
 
@@ -22,7 +22,8 @@ class ToolboxModule(BaseToolboxModule):
     HELP: str = "This is a sample module"
     OUTPUT_HTML_JINJA2: Optional[str] = None
 
-    def flat_output(self, output_data: dict[str, Any]) -> list[dict[str, str]]:
+    @staticmethod
+    def flat_output(output_data: Dict[str, Any]) -> List[Dict[str, str]]: # pylint: disable=unused-argument
         return []
 
     class Arguments(BaseToolboxModule.Arguments):

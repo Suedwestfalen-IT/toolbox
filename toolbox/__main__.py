@@ -26,6 +26,7 @@ def main():
     # First get generic paramters
     parser = argparse.ArgumentParser(prog="toolbox", add_help=True)
     parser.add_argument("-c", "--config", metavar="<file>", help="Path to config.yml", required=False)
+    parser.add_argument("--port", metavar="<port>", help="Port for Webapp", required=False, default=8000)
     parser.add_argument("-i", "--input", metavar="<file>", help="YAML-Input for module", required=False)
     parser.add_argument(
         "-o", "--output", metavar="<file>", help="Path to store module output", required=False, default="-"
@@ -39,7 +40,28 @@ def main():
     # then run the toolbox
 
     tb = Toolbox(args.config, args.verbose)
-    tb.run(args.command, args.arguments, args.input, args.output)
+
+    if args.command == "webrun":
+        import uvicorn #pylint: disable=import-outside-toplevel
+        import toolbox.web as web #pylint: disable=import-outside-toplevel,consider-using-from-import
+        web.tb = tb # patch the already created instance to the module!
+        uvicorn.run(web.app, host='0.0.0.0', port=8005)
+    elif args.command == "webdev":
+        import uvicorn #pylint: disable=import-outside-toplevel
+        import toolbox.web as web #pylint: disable=import-outside-toplevel,consider-using-from-import
+        web.tb = tb # patch the already created instance to the module!
+        uvicorn.run("toolbox.web:app", host='0.0.0.0', port=int(args.port), reload=True)
+    elif args.command == "tests":
+        print("Running pylint")
+        from pylint.lint import Run #pylint: disable=import-outside-toplevel
+        Run(['toolbox', '--exit-zero'], exit=False)
+
+        #print("Running pytest")
+        #import unittest
+        #tests = unittest.TestLoader().discover('tests')
+        #result = unittest.TextTestRunner(verbosity=2).run(tests)
+    else:
+        tb.run(args.command, args.arguments, args.input, args.output)
 
 if __name__ == "__main__":
     main()

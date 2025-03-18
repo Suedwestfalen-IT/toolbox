@@ -1,6 +1,11 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 import importlib.metadata
 from functools import lru_cache
+from io import BytesIO
+import io
+import csv
+from typing import Dict, Any, List
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -8,10 +13,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from jinja2 import Template
-import csv
-import io
-from typing import Dict, Any, List
-from io import BytesIO
 from openpyxl import Workbook
 
 import uvicorn
@@ -20,16 +21,34 @@ import toolbox
 
 #pylint: disable = missing-function-docstring
 
-# config
+tb = None # pylint: disable=invalid-name
 web_config = {}
-with open("./config.yml", "r", encoding="utf-8") as fh:
-    web_config = yaml.safe_load(fh)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI): # pylint: disable=redefined-outer-name,unused-argument
+    global tb, web_config # pylint: disable=global-statement
+
+    if not tb:
+        tb = toolbox.Toolbox()
+    web_config = tb.config.get('web',{})
+
+    yield
+    # Perform any necessary cleanup here
+
+
+
+# config
+
+
 
 # templating
 templates = Jinja2Templates(directory="toolbox/web/templates")
 
-app = FastAPI()
-tb = toolbox.Toolbox()
+app = FastAPI(
+    title="Toolbox",
+    lifespan=lifespan
+)
+
 
 # static files
 dist = importlib.metadata.distribution("bootstrap")
@@ -115,11 +134,12 @@ def get_html_output(module, output_data: Dict[str, Any]) -> str:
     """
 
     if module.OUTPUT_HTML_JINJA2:
-        # Hier könnte man den Jinja2-Renderer einsetzen, um den Template-Code mit output_data zu rendern.
-        return Template(module.OUTPUT_HTML_JINJA2)
-    else:
-        flat_data = module.flat_output(output_data)
-        return generate_generic_table(flat_data)
+        output_template = Template(module.OUTPUT_HTML_JINJA2)
+        return output_template.render(data=output_data)
+
+
+    flat_data = module.flat_output(output_data)
+    return generate_generic_table(flat_data)
 
 
 def generate_generic_table(data: List[Dict[str, str]]) -> str:
@@ -281,9 +301,3 @@ def xlsx_endpoint(toolgroup: str, tool: str, request: Request):
     filename = tool_config.get('module') + '.xlsx'
     headers = {"Content-Disposition": f"attachment; filename={filename}"}
     return Response(content=xlsx_content, headers=headers, media_type="text/xlsx")
-
-
-
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
