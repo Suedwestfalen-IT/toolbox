@@ -30,25 +30,28 @@ class Toolbox:
         Sets up a logger for the toolbox instance with the specified verbosity level.
         """
 
+        config_template = {
+            'web': {
+                'groups': {}
+            }
+        }
+        self.config = config_template
+
         # Load configuration
         if config is None:
-            config_path = os.path.expanduser("~/.config/toolbox.yaml")
-            if os.path.exists(config_path):
-                with open(config_path, "r", encoding="utf-8") as fh:
-                    self.config = yaml.safe_load(fh)
-            else:
-                self.config = {}
-        elif isinstance(config, str):
+            config = os.path.expanduser("~/.config/toolbox.yaml")
+
+        if isinstance(config, str):
             if not os.path.exists(config):
                 raise FileNotFoundError(f"Configuration file {config} does not exist.")
             with open(config, "r", encoding="utf-8") as fh:
-                self.config = yaml.safe_load(fh)
+                if loaded_config := yaml.safe_load(fh):
+                    self.config.update(loaded_config)
+
         elif isinstance(config, dict):
-            self.config = config
+            self.config.update(config)
         else:
             raise ValueError("Invalid config type. Must be None, str, or dict.")
-
-
 
         # Setup Logger
         self.logger = logging.getLogger("toolbox")

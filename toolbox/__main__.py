@@ -1,5 +1,5 @@
 import argparse
-
+import os
 from toolbox import Toolbox
 
 def main():
@@ -26,7 +26,7 @@ def main():
     # First get generic paramters
     parser = argparse.ArgumentParser(prog="toolbox", add_help=True)
     parser.add_argument("-c", "--config", metavar="<file>", help="Path to config.yml", required=False)
-    parser.add_argument("--port", metavar="<port>", help="Port for Webapp", required=False, default=8000)
+    parser.add_argument("--port", metavar="<port>", help="Port for Webapp", required=False)
     parser.add_argument("-i", "--input", metavar="<file>", help="YAML-Input for module", required=False)
     parser.add_argument(
         "-o", "--output", metavar="<file>", help="Path to store module output", required=False, default="-"
@@ -38,18 +38,23 @@ def main():
     args = parser.parse_args()
 
     # then run the toolbox
+    if args.config:
+        os.environ['CONFIG'] = args.config
 
-    tb = Toolbox(args.config, args.verbose)
+
+
 
     if args.command == "webrun":
+        if not args.port:
+            args.port = 8005
         import uvicorn #pylint: disable=import-outside-toplevel
-        import toolbox.web as web #pylint: disable=import-outside-toplevel,consider-using-from-import
-        web.tb = tb # patch the already created instance to the module!
-        uvicorn.run(web.app, host='0.0.0.0', port=8005)
+        from toolbox import web #pylint: disable=import-outside-toplevel
+        uvicorn.run(web.app, host='0.0.0.0', port=int(args.port))
     elif args.command == "webdev":
+        if not args.port:
+            args.port = 8000
+
         import uvicorn #pylint: disable=import-outside-toplevel
-        import toolbox.web as web #pylint: disable=import-outside-toplevel,consider-using-from-import
-        web.tb = tb # patch the already created instance to the module!
         uvicorn.run("toolbox.web:app", host='0.0.0.0', port=int(args.port), reload=True)
     elif args.command == "tests":
         print("Running pylint")
@@ -61,6 +66,7 @@ def main():
         #tests = unittest.TestLoader().discover('tests')
         #result = unittest.TextTestRunner(verbosity=2).run(tests)
     else:
+        tb = Toolbox(args.config, args.verbose)
         tb.run(args.command, args.arguments, args.input, args.output)
 
 if __name__ == "__main__":

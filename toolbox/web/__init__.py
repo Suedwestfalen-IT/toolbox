@@ -4,6 +4,7 @@ import importlib.metadata
 from functools import lru_cache
 from io import BytesIO
 import io
+import os
 import csv
 from typing import Dict, Any, List
 
@@ -29,17 +30,12 @@ async def lifespan(app: FastAPI): # pylint: disable=redefined-outer-name,unused-
     global tb, web_config # pylint: disable=global-statement
 
     if not tb:
-        tb = toolbox.Toolbox()
+
+        tb = toolbox.Toolbox(os.environ.get('CONFIG', None))
     web_config = tb.config.get('web',{})
 
     yield
     # Perform any necessary cleanup here
-
-
-
-# config
-
-
 
 # templating
 templates = Jinja2Templates(directory="toolbox/web/templates")
