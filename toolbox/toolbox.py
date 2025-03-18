@@ -124,7 +124,7 @@ class Toolbox:
 
         return module
 
-    def list_modules(self, package_name: str): # pylint: disable=too-many-locals
+    def list_modules(self, package_name: str): # pylint: disable=too-many-locals,too-many-branches
         """ Get all Toolbox Modules from given package retruns a generator with strings """
         prefix = "toolbox"
 
@@ -132,6 +132,9 @@ class Toolbox:
             prefix = "toolbox_modules"
 
         full_package_name = f"{prefix}.{package_name}"
+        if package_name == "toolbox_modules":
+            full_package_name = package_name
+
         try:
             package = importlib.import_module(full_package_name)
         except Exception as e: # pylint: disable=broad-exception-caught
