@@ -3,7 +3,7 @@ import importlib
 import importlib.util
 import logging
 import os
-# import pkgutil
+
 import sys
 import inspect
 from typing import Type, Optional, Union
@@ -124,6 +124,49 @@ class Toolbox:
 
         return module
 
+    def list_modules(self, package_name: str): # pylint: disable=too-many-locals
+        """ Get all Toolbox Modules from given package retruns a generator with strings """
+        prefix = "toolbox"
+
+        if package_name != "builtin":
+            prefix = "toolbox_modules"
+
+        full_package_name = f"{prefix}.{package_name}"
+        try:
+            package = importlib.import_module(full_package_name)
+        except Exception as e: # pylint: disable=broad-exception-caught
+            self.logger.error(f"Fehler beim Import von {full_package_name}: {e}")
+            return
+
+        if not hasattr(package, '__path__'):
+            self.logger.warning(f"{full_package_name} besitzt kein __path__-Attribut und kann daher nicht rekursiv durchsucht werden.")
+            return
+
+        # Iteriere über alle Pfade des Pakets (funktioniert auch bei Namespace-Paketen)
+        for package_path in package.__path__: # pylint: disable=too-many-nested-blocks
+            for root, _, files in os.walk(package_path):
+                for file in files:
+                    if file.endswith('.py') and file != '__init__.py':
+                        # Erstelle den Modulnamen basierend auf dem relativen Pfad
+                        rel_dir = os.path.relpath(root, package_path)
+                        module_name = os.path.splitext(file)[0]
+                        if rel_dir == '.':
+                            full_module_name = f"{package.__name__}.{module_name}"
+                        else:
+                            full_module_name = f"{package.__name__}.{rel_dir.replace(os.sep, '.')}.{module_name}"
+                        try:
+                            mod = importlib.import_module(full_module_name)
+                        except Exception as e: # pylint: disable=broad-exception-caught
+                            self.logger.error(f"Fehler beim Import des Moduls {full_module_name}: {e}")
+                            continue
+
+                        # Prüfe, ob im Modul eine Klasse namens ToolboxModule existiert
+                        for member_name, _ in inspect.getmembers(mod, inspect.isclass):
+                            if member_name == "ToolboxModule":
+                                full_module_name = full_module_name.removeprefix("toolbox_modules.")
+                                full_module_name = full_module_name.removeprefix("toolbox.")
+                                self.logger.info(f"{full_module_name}")
+                                yield full_module_name
 
     def run(self, command: str, arguments: list | dict, input: Optional[str] = None, output: Optional[str] = None): # pylint: disable=redefined-builtin
         """
@@ -138,6 +181,9 @@ class Toolbox:
         Returns:
             dict: A dictionary containing the module's output.
         """
+
+        if len(command.split('.')) == 1:
+            return list(self.list_modules(command))
 
         # Handle remaining arguments
         module_class = self.load_module(command)
@@ -170,35 +216,3 @@ class Toolbox:
                     file.write(output_yaml)
 
         return output_data
-
-
-
-    # def find_toolbox_modules(self, package: ModuleType|str) -> Dict[str, Type[BaseToolboxModule]]:
-    #     if isinstance(package, str):
-    #         package = importlib.import_module(package)
-
-    #     """Rekursiv alle Module und Subpackages durchsuchen und
-    #     ein Dictionary mit vollqualifizierten Modulnamen und deren
-    #     ToolboxModule-Klasse zurückgeben, falls vorhanden.
-    #     """
-    #     found = {}
-    #     for _, name, ispkg in pkgutil.iter_modules(package.__path__):
-    #         full_name = f"{package.__name__}.{name}"
-    #         try:
-    #             module = importlib.import_module(full_name)
-    #         except ImportError as e:
-    #             print(f"ImportError in {full_name}: {e}", file=sys.stderr)
-    #             continue
-
-    #         print(f"Checking {full_name}...")
-
-    #         # Direkt prüfen, ob das Modul die Klasse ToolboxModule enthält.
-    #         if hasattr(module, "ToolboxModule"):
-    #             candidate = getattr(module, "ToolboxModule")
-    #             if inspect.isclass(candidate):
-    #                 found[full_name] = candidate
-
-    #         # Falls es sich um ein Package handelt, rekursiv weitersuchen.
-    #         if ispkg:
-    #             found.update(self.find_toolbox_modules(module))
-    #     return found
