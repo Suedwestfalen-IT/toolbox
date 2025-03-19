@@ -187,7 +187,6 @@ def generate_xlsx_output(data: List[Dict[str, str]]) -> bytes:
     :return: XLSX-Dateiinhalt als Bytes.
     """
 
-
     wb = Workbook()
     ws = wb.active
 

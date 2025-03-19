@@ -57,6 +57,11 @@ class BaseToolboxModule(abc.ABC):
 
         raise NotImplementedError("flat_output not implemented!")
 
+    @classmethod
+    def has_flat_output(cls) -> bool:
+        """ check if module has a flat output """
+
+        return cls.flat_output is not BaseToolboxModule.flat_output
 
     class Arguments(ConfigModel):
         """

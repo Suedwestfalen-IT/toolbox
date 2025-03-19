@@ -55,10 +55,12 @@ class Toolbox:
 
         # Setup Logger
         self.logger = logging.getLogger("toolbox")
+
         self.logger.setLevel(logging.DEBUG if verbose else logging.INFO)
         formatter = logging.Formatter("%(asctime)s %(levelname)s [%(name)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-        handler = logging.StreamHandler(sys.stdout)
+        handler = logging.StreamHandler(sys.stderr)
         handler.setFormatter(formatter)
+
         self.logger.addHandler(handler)
 
         # # Load Search Paths

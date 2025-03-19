@@ -58,8 +58,10 @@
 {% if run %}
 <div class="mt-4">
   <h4>Download / Raw Output</h4>
-  <a href="/{{ path[0] }}/{{ path[1] }}/xlsx?{{ str_get_params }}" class="btn btn-outline-primary me-2">XLSX Download</a>
-  <a href="/{{ path[0] }}/{{ path[1] }}/csv?{{ str_get_params }}" class="btn btn-outline-primary me-2">CSV Download</a>
+  {% if toolbox_module.has_flat_output() %}
+    <a href="/{{ path[0] }}/{{ path[1] }}/xlsx?{{ str_get_params }}" class="btn btn-outline-primary me-2">XLSX Download</a>
+    <a href="/{{ path[0] }}/{{ path[1] }}/csv?{{ str_get_params }}" class="btn btn-outline-primary me-2">CSV Download</a>
+  {% endif %}
   <a href="/{{ path[0] }}/{{ path[1] }}/raw/yaml?{{ str_get_params }}" class="btn btn-outline-secondary me-2">Raw YAML</a>
   <a href="/{{ path[0] }}/{{ path[1] }}/raw/json?{{ str_get_params }}" class="btn btn-outline-success">Raw JSON</a>
 </div>
