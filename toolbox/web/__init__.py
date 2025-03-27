@@ -16,12 +16,12 @@ from fastapi.templating import Jinja2Templates
 from jinja2 import Template
 from openpyxl import Workbook
 
+from cachetools import TTLCache
 from pydantic import BaseModel
 import uvicorn
 import yaml
 import toolbox
 
-from cachetools import TTLCache
 func_cache = TTLCache(ttl=3600, maxsize=8000)
 
 #pylint: disable = missing-function-docstring

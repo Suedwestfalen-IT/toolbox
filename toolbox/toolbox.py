@@ -176,7 +176,7 @@ class Toolbox:
                                 self.logger.info(f"{full_module_name}")
                                 yield full_module_name
 
-    def run(self, command: str, arguments: list | dict, input: Optional[str] = None, output: Optional[str] = None, summation: bool = False): # pylint: disable=redefined-builtin
+    def run(self, command: str, arguments: list | dict, input: Optional[str] = None, output: Optional[str] = None, summation: bool = False): # pylint: disable=redefined-builtin, too-many-arguments, too-many-positional-arguments
         """
         Executes a command with the specified arguments.
 
