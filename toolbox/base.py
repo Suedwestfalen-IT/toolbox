@@ -76,7 +76,7 @@ class BaseToolboxModule(abc.ABC):
         """
         if hasattr(cls, "Arguments"):
             model: Type[BaseModel] = cls.Arguments  # Typischerweise ein Pydantic-Modell
-            for field_name, model_field in model.__fields__.items():
+            for field_name, model_field in model.model_fields.items():
                 field_info = getattr(model_field, "field_info", model_field)
                 extras = field_info.json_schema_extra
 

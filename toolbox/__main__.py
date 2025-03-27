@@ -28,6 +28,7 @@ def main():
     parser.add_argument("-c", "--config", metavar="<file>", help="Path to config.yml", required=False)
     parser.add_argument("--port", metavar="<port>", help="Port for Webapp", required=False)
     parser.add_argument("-i", "--input", metavar="<file>", help="YAML-Input for module", required=False)
+    parser.add_argument("-x", "--summation", action="store_true", default=False, help="summation of input modules", required=False)
     parser.add_argument(
         "-o", "--output", metavar="<file>", help="Path to store module output", required=False, default="-"
     )
@@ -67,7 +68,7 @@ def main():
         #result = unittest.TextTestRunner(verbosity=2).run(tests)
     else:
         tb = Toolbox(args.config, args.verbose)
-        tb.run(args.command, args.arguments, args.input, args.output)
+        tb.run(args.command, args.arguments, args.input, args.output, args.summation)
 
 if __name__ == "__main__":
     main()

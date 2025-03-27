@@ -115,10 +115,10 @@ class Toolbox:
             argparser = argparse.ArgumentParser(prog=command, description=module_class.HELP)
             module_class.update_parser(argparser)
             args = argparser.parse_args(arguments)
-            parsed_args = module_class.Arguments.parse_obj(vars(args))
+            parsed_args = module_class.Arguments.model_validate(vars(args))
 
         elif isinstance(arguments, dict):
-            parsed_args = module_class.Arguments.parse_obj(arguments)
+            parsed_args = module_class.Arguments.model_validate(arguments)
         else:
             raise ValueError("Invalid arguments type. Must be list or dict.")
 
@@ -176,7 +176,7 @@ class Toolbox:
                                 self.logger.info(f"{full_module_name}")
                                 yield full_module_name
 
-    def run(self, command: str, arguments: list | dict, input: Optional[str] = None, output: Optional[str] = None): # pylint: disable=redefined-builtin
+    def run(self, command: str, arguments: list | dict, input: Optional[str] = None, output: Optional[str] = None, summation: bool = False): # pylint: disable=redefined-builtin
         """
         Executes a command with the specified arguments.
 
@@ -200,9 +200,11 @@ class Toolbox:
 
         module = self.init_module(module_class, arguments)
 
+        stdin_read = False
         # Get Input
         if input is not None:
             if input == '-':
+                stdin_read = True
                 input_data = yaml.safe_load(sys.stdin.read())
             else:
                 with open(input, "r", encoding="utf-8") as fh:
@@ -210,8 +212,16 @@ class Toolbox:
         else:
             input_data = None
 
+        output_data = {}
+        if summation:
+            if stdin_read and isinstance(input_data, dict):
+                output_data = input_data
+            else:
+                output_data = yaml.safe_load(sys.stdin.read())
+
         # Process
-        output_data = {command: module.run(input_data)}
+        output_data[command] = module.run(input_data)
+        # output_data = {command: module.run(input_data)}
 
         # Send Output
         output_yaml = yaml.dump(output_data, allow_unicode=True, default_flow_style=False)
