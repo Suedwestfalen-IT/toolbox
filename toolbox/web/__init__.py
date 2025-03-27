@@ -16,9 +16,13 @@ from fastapi.templating import Jinja2Templates
 from jinja2 import Template
 from openpyxl import Workbook
 
+from pydantic import BaseModel
 import uvicorn
 import yaml
 import toolbox
+
+from cachetools import TTLCache
+func_cache = TTLCache(ttl=3600, maxsize=8000)
 
 #pylint: disable = missing-function-docstring
 
@@ -52,11 +56,19 @@ static_path = Path(dist.locate_file("bootstrap/dist"))
 app.mount("/bootstrap", StaticFiles(directory=str(static_path)), name="bootstrap")
 app.mount("/static", StaticFiles(directory="toolbox/web/static"), name="static")
 
-@lru_cache(maxsize=None)
 def toolbox_wrapper(module_class, **kwargs):
+    ignore_cache = kwargs.pop('ignore_cache', False)
+    if ignore_cache:
+        print('ignoring cache!')
+
+    cache_key = str(kwargs)+str(module_class)
+    print(cache_key)
+    if cache_key in func_cache and not ignore_cache:
+        return func_cache[cache_key]
 
     toolbox_module_obj = tb.init_module(module_class, kwargs)
-    return toolbox_module_obj.run()
+    func_cache[cache_key] = toolbox_module_obj.run()
+    return func_cache[cache_key]
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
